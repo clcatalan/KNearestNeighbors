@@ -6,23 +6,23 @@ import numpy as np
 from sklearn import linear_model, preprocessing
 
 
-    
-
+def cleanData(colName):
+    #clean data via sklearn, put column values into a list, then fit_transform automatically changes it to numeric values
+    le = preprocessing.LabelEncoder()
+    return le.fit_transform(list(data[colName]))
 
 data = pd.read_csv("car.data")
 #print(data.head())
 predict = "class"
 
-le = preprocessing.LabelEncoder()
-#clean data via sklearn, put column values into a list, then fit_transform automatically changes it to numeric values
-buying = le.fit_transform(list(data["buying"]))
-maint = le.fit_transform(list(data["maint"]))
-doors = le.fit_transform(list(data["door"]))
-persons = le.fit_transform(list(data["persons"]))
-lugBoot = le.fit_transform(list(data["lug_boot"]))
-safety = le.fit_transform(list(data["safety"]))
-carClass = le.fit_transform(list(data["class"]))
-print(buying)
+
+buying = cleanData("buying")
+maint = cleanData("maint")
+doors = cleanData("door")
+persons = cleanData("persons")
+lugBoot = cleanData("lug_boot")
+safety = cleanData("safety")
+carClass = cleanData("class")
 
 #zip puts all features in one list, create tuples
 X = list(zip(buying, maint, doors, persons, lugBoot, safety))
@@ -34,11 +34,15 @@ X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(X,y,
 model = KNeighborsClassifier(n_neighbors = 9)
 model.fit(X_train, y_train)
 acc = model.score(X_test, y_test)
-print(acc)
+print("Model Accuracy: ",acc)
 
 predicted = model.predict(X_test)
 names = ["unacc", "acc", "good", "vgood"]
 for x in range(len(predicted)):
-    print("Predicted: ", names[predicted[x]], "Data: ", X_test[x], "Actual: ", names[y_test[x]])
+    print(f"[{x}]----------")
+    print("Predicted: ", names[predicted[x]])
+    print("Actual: ", names[y_test[x]])
     n = model.kneighbors([X_test[x]], 9, True)
+    #1st array: distance to each neighbor
+    #2nd array: index of that neighbor in data set
     print("N: ",n)
